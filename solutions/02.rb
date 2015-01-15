@@ -1,77 +1,73 @@
 class NumberSet
   include Enumerable
-
-  def each &block
-    numbers.each { |n| yield n }
+  def each (&block)
+   # @numbers.each { |n| yield n }
+   @numbers.each(&block)
   end
 
   def initialize
-    self.numbers = Array.new
+    @numbers = []
   end
 
   def <<(other)
-    if not numbers.include?(other) then 
-      numbers.push(other)
-    end
+    @numbers.push(other) unless @numbers.include?(other)
   end
 
   def size
-    counter = 0
-      numbers.each { |each| counter += 1 }
-      return counter
+    @numbers.size
   end
 
   def empty?
-    numbers.size == 0
+    @numbers.size == 0
   end
 
-  def [](class_name)
-    case class_name
-    when class_name == Filter     then self.Filter.initialize
-    when class_name == TypeFilter then self.SignFilter.initialize
-    when class_name == SingFilter then self.SignFilter.initialize
-    end
-  end
-
-  def |(other)
-    numbers.each do |number|
-     numbers << other if not numbers == other
-   end
+  def [](filter)
+    filtered = NumberSet.new
+    filtered = @numbers.select { |number| filter.filtering number }
   end
 end
 
-class Filter < NumberSet
-  filtered = NumberSet.new
- def initialize(&block)
-     numbers.each do |number|
-      filtered << number if yield number
-    end
+module FOperations
+ def filtering(number)
+    @filter.call (number)
+  end
+def &(other_filter)
+  Filter.new { |number| filtering(number) and other_filter.filtering (number) }
+end
+
+def |(other_filter)
+  Filter.new { |number| filtering(number) or other_filter.filtering (number) }
+end
+end
+
+class Filter
+  include FOperations
+   def initialize(&block)
+    @filter = block
   end
 end
-class SignFilter < NumberSet
-  attr_accessor :filtered
-   filtered = NumberSet.new
+
+class SignFilter
+  include FOperations
   def initialize(key)
     case key
-    when key == :positive     then numbers.select { |n| n > 0 }
-    when key == :non_positive then numbers.select { |n| n <= 0 }
-    when key == :negative     then numbers.select { |n| n < 0 }
-    when key == :non_negative then numbers.select { |n| n >= 0 }
+    when :positive     then @filter = Proc.new { |number| number > 0 }
+    when :non_positive then @filter = Proc.new { |number| number <= 0 }
+    when :negative     then @filter = Proc.new { |number| number < 0 }
+    when :non_negative then @filter = Proc.new { |number| number >= 0 }
     end
-    filtered = numbers
   end
 end
 
-class TypeFilter < NumberSet
-  attr_accessor :filtered
-  filtered = NumberSet.new
+class TypeFilter
+ include FOperations
   def initialize(key)
     case key
-    when key == :integer then numbers.select { |n| n.is_a? Integer }
-    when key == :complex then numbers.select { |n| n.is_a? Complex }
-    when key == :real    then
-        numbers.select { |n| n.is_a? Float or n.is_a? Rational }
+    when :integer then @filter = Proc.new { |number| number.is_a? Integer }
+    when :complex then @filter = Proc.new { |number| number.is_a? Complex }
+    when :real    then @filter = Proc.new do |number|
+      (number.is_a? Rational) or (number.is_a? Float)
+       end
     end
-    filtered = numbers
   end
 end
