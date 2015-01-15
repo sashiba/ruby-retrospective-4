@@ -1,7 +1,6 @@
 class NumberSet
   include Enumerable
   def each (&block)
-   # @numbers.each { |n| yield n }
    @numbers.each(&block)
   end
 

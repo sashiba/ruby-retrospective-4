@@ -1,80 +1,29 @@
 module UI
-  class Horizontal
-    @arr_items
-    @border
-    @style
-    def initialize(hash, &block)
-            @border = hash[:border]
-            @style = hash[:style]
-            instance_eval &block
-    end
-    def horizontal(hash, &block)
-      horizon = Horizontal.new hash(&block)
-      @arr_items << horizon
-    end
-    def vertical(hash, &block)
-      vertical = Vertical.new hash(&block)
-      @arr_items << vertical
-    end
-    def label(parameters)
-            parameters[:border] = "" unless parameters.has_key?(:border)
-            style = TextScreen::style(parameters[:style], parameters[:text])
-            @str << parameters[:border] << style << parameters[:border]
-            @arr_items << @str
-          end
-          def top
-          end
-    def get_top
-     @border << @border unless border.nil?
-    end
-  end
-  class Vertical
-    @arr_items
-    @border
-    @style
-    def initialize(hash, &block)
-            @border = hash[:border]
-            @style = hash[:style]
-            instance_eval &block
-    end
-    def horizontal(hash, &block)
-      horizon = Horizontal.new hash(&block)
-      @arr_items << horizon
-    end
-    def vertical(hash, &block)
-      vertical = Vertical.new(hash, &block)
-      @arr_items << vertical
-    end
-    def label(parameters)
-            parameters[:border] = "" unless parameters.has_key?(:border)
-            style = TextScreen::style(parameters[:style], parameters[:text])
-            @str << parameters[:border] << style << parameters[:border]
-            @arr_items << @str
-          end
-           def top
-          end
-    def get_top
-     @border << @border unless border.nil?
-    end
-  end
-  class TextScreen
-          @screen_string = ""
-          def self.style (style, text)
-      case style
-        when :uppercase then text.upcase
-        when :downcase  then text.downcase
-        else                 text
-      end
-          end
-          def print(group)
-            group.each do |elem|
-                    @screen_string << elem.get_top
+    class TextScreen
+        attr_accessor :temp
+        def self.draw (&block)
+            @temp = []
+            self.instance_eval(&block)
+            @temp.join('') if @temp.class != String
+        end
+
+        def self.label(text:, style: nil, border: nil)
+            case style
+            when :upcase   then text = text.upcase
+            when :downcase then text = text.downcase
             end
-          end
-    def self.draw(&block)
-      group = Hroizontal.new &block
-      print group
-      @screen_string
+            text = "#{border}#{text}#{border}" if border != nil
+            @temp << text
+        end
+
+        def self.horizontal(border: nil, style: nil, &block)
+            self.instance_eval(&block)
+            horizontal_text = ""
+            @temp.each do |text|
+                horizontal_text << text
+            end
+            horizontal_text = "#{border}#{horizontaltext}#{border}" if border != nil
+            @temp = horizontal_text
+            end
     end
-  end
 end
