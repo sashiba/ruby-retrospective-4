@@ -1,25 +1,24 @@
 class NumberSet
-  attr_accessor :nums
   include Enumerable
 
   def each &block
-          numbers.each { |n| yield n }
+    numbers.each { |n| yield n }
   end
 
   def initialize
-          numbers = Array.new
+    self.numbers = Array.new
   end
 
   def <<(other)
-        if not numbers.include?(other) then
-          numbers.push(other)
+    if not numbers.include?(other) then 
+      numbers.push(other)
     end
   end
 
   def size
     counter = 0
-          numbers.each { |each| counter += 1 }
-          return counter
+      numbers.each { |each| counter += 1 }
+      return counter
   end
 
   def empty?
@@ -29,8 +28,8 @@ class NumberSet
   def [](class_name)
     case class_name
     when class_name == Filter     then self.Filter.initialize
-    when class_name == TypeFilter then self.SingFilter.initialize
-    when class_name == SingFilter then self.SingFilter.initialize
+    when class_name == TypeFilter then self.SignFilter.initialize
+    when class_name == SingFilter then self.SignFilter.initialize
     end
   end
 
@@ -49,7 +48,7 @@ class Filter < NumberSet
     end
   end
 end
-class SingFilter < NumberSet
+class SignFilter < NumberSet
   attr_accessor :filtered
    filtered = NumberSet.new
   def initialize(key)
